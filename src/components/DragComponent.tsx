@@ -62,11 +62,14 @@ export default function DragComponent({
       if (!svgConnector) break;
 
       //Classe adicionada no conector
-      svgConnector.setAttribute("class", "connector");
+      svgConnector.setAttribute(
+        "class",
+        "connector hover:fill-red-600 cursor-pointer"
+      );
       //Classe adicionada no conector
       svgConnector.setAttribute(
         "id",
-        `${name}/${connectorSvgId}/${dragComponent.id}`
+        `${dragComponent.componentName}/${connectorSvgId}/${dragComponent.id}`
       );
 
       svgConnector.setAttribute("pointer-events", "fill");
@@ -124,16 +127,16 @@ export default function DragComponent({
       if (
         params.tap &&
         params.elapsedTime >= 500 &&
-        params.event.target!.className!.baseVal === "connector"
+        (params.event.target as any).classList.contains("connector")
       ) {
         console.log("novanova");
 
         createLine(
-          params.event.target,
-          lines,
-          setLines,
+          params.event.target as HTMLElement,
           dragMap,
           setDragMap,
+          lines,
+          setLines,
           connectivityMtx,
           setConnectivityMtx
         );
@@ -227,7 +230,7 @@ export default function DragComponent({
 
   return (
     <div
-      className="svgDiv"
+      className="svgDiv "
       id={dragComponent.id}
       style={{
         position: "fixed",

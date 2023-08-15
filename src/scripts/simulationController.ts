@@ -26,23 +26,24 @@ export function newSimulationController(
     let id;
     id = line.startLine.split("/")[2];
     toBeLookedComponentsSet.add(id);
-    id = line.endLine.split("/")[2];
+    id = line.endLine!.split("/")[2]; //!!!
     toBeLookedComponentsSet.add(id);
   });
 
   // Baseado na filtragem acima conseguimos um dragMap filtrado
-  let allSimulatedComponents : component_class[];
+  let allSimulatedComponents: component_class[];
   allSimulatedComponents = dragMap.filter((component) => {
     return toBeLookedComponentsSet.has(component.id);
   });
 
-  var toBeSimulatedComponents : component_class[] = [];
-  var simulatedComponents : component_class[] = [];
+  var toBeSimulatedComponents: component_class[] = [];
+  var simulatedComponents: component_class[] = [];
 
   // Aqui definimos o primeiro elemento a ser simulado e adicionamos no segundo Set
   allSimulatedComponents.forEach((component) => {
-    if(!component.config.type) throw ('Missing type in component config')
-    if (component.config.type === "power_source") {
+    if (!(component.config as any).type)
+      throw "Missing type in component config";
+    if ((component.config as any).type === "power_source") {
       toBeSimulatedComponents.push(component);
     }
   });
@@ -75,11 +76,12 @@ export function newSimulationController(
       let output = component.doBehavior(input);
 
       // Depois disso iteramos por cada pino do componente
-      if(!component.config.pins) throw ('Missing pins in component config')
-      Object.keys(component.config.pins).forEach((connectorPin) => {
+      if (!(component.config as any).pins)
+        throw "Missing pins in component config";
+      Object.keys((component.config as any).pins).forEach((connectorPin) => {
         // Seguindo apenas com aqueles que são de saida
         //! Ver caso de in-out
-        if (!component.config.pins[connectorPin] === "out") return; //??????????????????????
+        if (!((component.config as any).pins[connectorPin] === "out")) return; //??????????????????????
 
         // Aqui atualizamos o valor do eletronicMtx para todos que estão conectados com o devido pino
         component.connectors.forEach((connector) => {
@@ -94,7 +96,7 @@ export function newSimulationController(
                 console.log(connectedTo.split("/")[2]);
                 return component.id === connectedTo.split("/")[2];
               });
-              if(!toAddComponent) return
+              if (!toAddComponent) return;
               if (
                 toBeSimulatedComponents.some(
                   (component) => component === toAddComponent
@@ -123,10 +125,17 @@ export function newSimulationController(
   }
 }
 
-function resetComponents(allSimulatedComponents : component_class[], simulatedComponents : component_class[]) {
-  let notSimulatedComponents : component_class[] = [];
-  allSimulatedComponents.forEach((component : component_class) => {
-    if (!simulatedComponents.some((component : component_class) => component === component))
+function resetComponents(
+  allSimulatedComponents: component_class[],
+  simulatedComponents: component_class[]
+) {
+  let notSimulatedComponents: component_class[] = [];
+  allSimulatedComponents.forEach((component: component_class) => {
+    if (
+      !simulatedComponents.some(
+        (component: component_class) => component === component
+      )
+    )
       notSimulatedComponents.push(component);
   });
 

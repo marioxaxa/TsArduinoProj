@@ -5,7 +5,7 @@ import { editorCodeCaller } from "./editorCodeCaller";
 import { v4 as uuidv4 } from "uuid";
 
 export default function createLine(
-  target: any,
+  target: HTMLElement,
   dragMap: component_class[],
   setDragMap: React.Dispatch<React.SetStateAction<component_class[]>>,
   lines: line_class[],
@@ -14,32 +14,26 @@ export default function createLine(
   setConnectivityMtx: React.Dispatch<React.SetStateAction<{}>>,
   isSection = false
 ) {
-  console.log(target);
-  console.log("DEFINIR TIPO DO TARGET");
 
   let tempLines = lines;
   let tempDragMap = dragMap;
   let tempConnectorsEndIndex;
 
   if (!isSection) {
-    var targetDragMap = dragMap.filter((i) => {
-      return i.id === target.id.split("/")[2];
-    })[0];
 
-    var targetConnector = targetDragMap.connectors.filter((c, index) => {
+
+    var targetDragMap = tempDragMap.find((i) => {
+      return i.id === target.id.split("/")[2];
+    });
+
+
+    var targetConnector = targetDragMap!.connectors.filter((c, index) => {
       if (c.svgId === target.id.split("/")[1]) {
         tempConnectorsEndIndex = index;
       }
       return c.svgId === target.id.split("/")[1];
     })[0];
 
-    //Logica para verificar se o target ja esta sendo usado
-
-    /*
-        if (targetConnector) {
-            if (targetConnector.connectedTo) throw Error('Conector ja esta sendo usado')
-        }
-        */
   }
 
   //Essa primeira seção do codigo corresponde ao caso do caminho da linha ter sido devidamente fechado
@@ -47,6 +41,9 @@ export default function createLine(
     Object.values(tempLines).some((l) => l.status === "Em aberto") &&
     !isSection
   ) {
+
+    console.log('linha fechada')
+
     let index = Object.values(tempLines).findIndex((l) => {
       return l.endLine === undefined;
     });
@@ -100,10 +97,6 @@ export default function createLine(
 
     makeLeaderLine(tempLines, tempSection);
 
-    //let newLineWithEmitters = makeEmitters(tempLines[index], emitter, tempDragMap[tempIndexEnd].componentName, data)
-
-    //tempLines[index] = newLineWithEmitters
-
     setDragMap(tempDragMap);
     setLines(tempLines);
 
@@ -120,6 +113,7 @@ export default function createLine(
     isSection
   ) {
     //Aqui temos a adição de mais uma section
+    console.log('nova section')
 
     let sectionUuid = uuidv4();
 
@@ -153,6 +147,8 @@ export default function createLine(
   }
   //Aqui temos o caso de estar sendo iniciado uma nova linha
   else {
+    console.log('nova linha')
+
     let sectionUuid = uuidv4();
     let section = new line_class(
       targetConnector!.fullId,
@@ -168,7 +164,6 @@ export default function createLine(
         uuidv4(),
         "Em aberto",
         [section],
-        `section/${sectionUuid}`
       )
     );
 

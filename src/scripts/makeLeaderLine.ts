@@ -42,6 +42,7 @@ export default function makeLeaderLine(
       });
     });
   } else if (!building) {
+    console.log('aqui')
     lines[lines.length - 1].sections.map((section) => {
       if (section.status === "moving") {
         section.leaderLine = new LeaderLine(
